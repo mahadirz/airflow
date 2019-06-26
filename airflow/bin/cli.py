@@ -843,6 +843,7 @@ def webserver(args):
     py2_deprecation_waring()
     print(settings.HEADER)
 
+    gunicorn_bin = args.gunicorn_bin or 'gunicorn'
     access_logfile = args.access_logfile or conf.get('webserver', 'access_logfile')
     error_logfile = args.error_logfile or conf.get('webserver', 'error_logfile')
     num_workers = args.workers or conf.get('webserver', 'workers')
@@ -893,7 +894,7 @@ def webserver(args):
                        error_logfile=error_logfile)))
 
         run_args = [
-            'gunicorn',
+            gunicorn_bin,
             '-w', str(num_workers),
             '-k', str(args.workerclass),
             '-t', str(worker_timeout),
@@ -1792,6 +1793,11 @@ class CLIFactory(object):
             default=conf.get('webserver', 'ERROR_LOGFILE'),
             help="The logfile to store the webserver error log. Use '-' to print to "
                  "stderr."),
+        'gunicorn_bin': Arg(
+            ("-gb", "--gunicorn_bin"),
+            default='gunicorn',
+            help="The binary file to the gunicorn"
+                 "stderr."),
         # scheduler
         'dag_id_opt': Arg(("-d", "--dag_id"), help="The id of the dag to run"),
         'run_duration': Arg(
@@ -2057,7 +2063,7 @@ class CLIFactory(object):
             'help': "Start a Airflow webserver instance",
             'args': ('port', 'workers', 'workerclass', 'worker_timeout', 'hostname',
                      'pid', 'daemon', 'stdout', 'stderr', 'access_logfile',
-                     'error_logfile', 'log_file', 'ssl_cert', 'ssl_key', 'debug'),
+                     'error_logfile', 'log_file', 'ssl_cert', 'ssl_key', 'debug', 'gunicorn_bin'),
         }, {
             'func': resetdb,
             'help': "Burn down and rebuild the metadata database",
